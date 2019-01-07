@@ -10,5 +10,16 @@ server.use(express.static(__dirname+"/../public"))
 
 
 server.listen(port,function(){
-    console.log("The server has started on port ",port)
+
+    speak(`The server has started on port ${port}`)
 })
+
+
+function speak(message){
+    
+    const err = new Error().stack
+
+    console.log(err.split("\n")[2])
+    
+    console.log(message)
+}
