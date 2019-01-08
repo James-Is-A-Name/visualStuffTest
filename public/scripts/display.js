@@ -10,14 +10,8 @@ function setupDisplayArea(){
     let loop = setInterval(() => {
         mainDisplay.moveItems()
         // mainDisplay.redrawItemsHTML()
+        mainDisplay.redrawItemsSVG()
         
-        let theRect = document.getElementById("theRect");
-
-        if(theRect.x){
-            console.log("rect is ",theRect.x.animVal.value)
-
-            theRect.setAttribute("x", theRect.x.animVal.value + 1);
-        }
     }
     ,20)
 }
@@ -39,54 +33,18 @@ class display{
         this.drawArea();
 
         this.items = [];
-        this.items.push(new visualItem(10,10,30,40,this.items.length));
-        this.items.push(new visualItem(101,110,60,40,this.items.length));
-        this.items.push(new visualItem(103,210,30,40,this.items.length));
-        this.items.push(new visualItem(120,310,30,40,this.items.length));
-        this.items.push(new visualItem(410,410,30,40,this.items.length));
+        this.items.push(new visualItem(10,10,30,undefined,this.items.length));
+        this.items.push(new visualItem(101,110,60,undefined,this.items.length));
+        this.items.push(new visualItem(103,210,30,undefined,this.items.length));
+        this.items.push(new visualItem(120,310,30,undefined,this.items.length));
+        this.items.push(new visualItem(410,410,30,undefined,this.items.length));
 
         [1,2,3,4,5,6,7,8,9,10,11,12,13,1,1,1,1,1,1,1,1,1,1,1,1,1,1].forEach( (val,i)=> {
-            this.items.push(new visualItem(10*val,10+i*5,30+val,50-val,this.items.length));
+            this.items.push(new visualItem(10*val,10+i*5,30+val,undefined,this.items.length));
         })
 
         // this.setupItemsHTML()
-
-        
-
-
-
-
-
-
-        let displayElement = document.getElementById("displayElement")
-
-        let svgNs = "http://www.w3.org/2000/svg";
-        
-        let anItem = document.createElementNS(svgNs,"svg");
-        anItem.setAttributeNS(null,"width",1000);
-        anItem.setAttributeNS(null,"height",1000);
-
-        let aCircle = document.createElementNS(svgNs,"rect");
-        aCircle.setAttributeNS(null,"id","theRect")
-        aCircle.setAttributeNS(null,"x",100)
-        aCircle.setAttributeNS(null,"y",100)
-        aCircle.setAttributeNS(null,"width",200)
-        aCircle.setAttributeNS(null,"height",300)
-
-        aCircle.setAttributeNS(null,"fill","red")
-
-        // let theRect = document.getElementById("theRect");
-        // console.log(theRect)
-        // theRect.style.height = 100;
-
-        anItem.appendChild(aCircle);
-
-
-
-        displayElement.appendChild(anItem);
-
-
-
+        this.setupItemsSVG()
 
     }
 
@@ -101,6 +59,43 @@ class display{
 
         displayElement.style.width = this.width + "px";
         displayElement.style.height = this.height + "px";
+
+
+
+        //Setup SVG
+        let svgNs = "http://www.w3.org/2000/svg";
+        
+        let svgArea = document.createElementNS(svgNs,"svg");
+        svgArea.setAttributeNS(null,"id","svgArea");
+        svgArea.setAttributeNS(null,"width",this.width);
+        svgArea.setAttributeNS(null,"height",this.height);
+
+        displayElement.appendChild(svgArea);
+    }
+
+    setupItemsSVG(){
+        let svgDisplayElement = document.getElementById("svgArea");
+        let svgNs = "http://www.w3.org/2000/svg";
+
+        speak(`items length is ${this.items.length}`)
+
+        this.items.forEach(itemData => {
+
+            if(itemData.itemId >= 0){
+                let aCircle = document.createElementNS(svgNs,"circle");
+                
+                aCircle.setAttributeNS(null,"id","svgItem-" + itemData.itemId);
+                aCircle.setAttributeNS(null,"cx",itemData.x);
+                aCircle.setAttributeNS(null,"cy",itemData.y);
+                aCircle.setAttributeNS(null,"r",itemData.width);
+
+                aCircle.setAttributeNS(null,"fill","red");
+                aCircle.setAttributeNS(null,"stroke","black");
+
+                //This will just keep adding things so not the best
+                svgDisplayElement.appendChild(aCircle);
+            }
+        });
     }
 
     setupItemsHTML(){
@@ -184,6 +179,34 @@ class display{
             item.style.top = itemData.y + "px";
             item.style.width = itemData.width + "px";
             item.style.height = itemData.height + "px";
+        })
+    }
+    
+    redrawItemsSVG(){
+        let displayElement = document.getElementById("svgArea");
+
+        // let anSVGCircle = document.getElementById("svgItem-1");
+
+        // if(anSVGCircle){
+        //     console.log("rect is ",anSVGCircle.cx.animVal.value)
+
+        //     anSVGCircle.setAttribute("cx", anSVGCircle.cx.animVal.value + 1);
+        // }
+
+        let childElemnts = displayElement.childNodes;
+
+
+        childElemnts.forEach( itemInfo =>{
+            let id = itemInfo.id
+            
+            let item = document.getElementById(id);
+            
+            let itemData = this.items[id.substring(8)];
+            
+
+            item.setAttribute("cx" ,itemData.x);
+            item.setAttribute("cy", itemData.y);
+            item.setAttribute("r", itemData.width);
         })
     }
 }
