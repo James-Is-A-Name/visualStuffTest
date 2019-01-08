@@ -9,7 +9,15 @@ function setupDisplayArea(){
 
     let loop = setInterval(() => {
         mainDisplay.moveItems()
-        mainDisplay.redrawItemsHTML()
+        // mainDisplay.redrawItemsHTML()
+        
+        let theRect = document.getElementById("theRect");
+
+        if(theRect.x){
+            console.log("rect is ",theRect.x.animVal.value)
+
+            theRect.setAttribute("x", theRect.x.animVal.value + 1);
+        }
     }
     ,20)
 }
@@ -41,7 +49,45 @@ class display{
             this.items.push(new visualItem(10*val,10+i*5,30+val,50-val,this.items.length));
         })
 
-        this.setupItemsHTML()
+        // this.setupItemsHTML()
+
+        
+
+
+
+
+
+
+        let displayElement = document.getElementById("displayElement")
+
+        let svgNs = "http://www.w3.org/2000/svg";
+        
+        let anItem = document.createElementNS(svgNs,"svg");
+        anItem.setAttributeNS(null,"width",1000);
+        anItem.setAttributeNS(null,"height",1000);
+
+        let aCircle = document.createElementNS(svgNs,"rect");
+        aCircle.setAttributeNS(null,"id","theRect")
+        aCircle.setAttributeNS(null,"x",100)
+        aCircle.setAttributeNS(null,"y",100)
+        aCircle.setAttributeNS(null,"width",200)
+        aCircle.setAttributeNS(null,"height",300)
+
+        aCircle.setAttributeNS(null,"fill","red")
+
+        // let theRect = document.getElementById("theRect");
+        // console.log(theRect)
+        // theRect.style.height = 100;
+
+        anItem.appendChild(aCircle);
+
+
+
+        displayElement.appendChild(anItem);
+
+
+
+
     }
 
     drawArea(){
