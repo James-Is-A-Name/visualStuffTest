@@ -9,7 +9,7 @@ function setupDisplayArea(){
 
     let loop = setInterval(() => {
         mainDisplay.moveItems()
-        mainDisplay.redrawItems()
+        mainDisplay.redrawItemsHTML()
     }
     ,20)
 }
@@ -41,7 +41,7 @@ class display{
             this.items.push(new visualItem(10*val,10+i*5,30+val,50-val,this.items.length));
         })
 
-        this.setupItems()
+        this.setupItemsHTML()
     }
 
     drawArea(){
@@ -57,7 +57,7 @@ class display{
         displayElement.style.height = this.height + "px";
     }
 
-    setupItems(){
+    setupItemsHTML(){
         let displayElement = document.getElementById("displayElement");
 
         speak(`items length is ${this.items.length}`)
@@ -100,7 +100,7 @@ class display{
                 itemData.yPolarity = -1;
                 
                 if(Math.random() > 0.5){
-                    itemData.xChange = Math.floor(Math.random() * 10 + 1)
+                    itemData.xChange = Math.floor(Math.random() * 10)
                     itemData.yChange = Math.floor(Math.random() * 10 + 1)
 
                     if(Math.random() > 0.90){
@@ -122,7 +122,7 @@ class display{
         })
     }
 
-    redrawItems(){
+    redrawItemsHTML(){
         let displayElement = document.getElementById("displayElement");
 
         let childElemnts = displayElement.childNodes;
