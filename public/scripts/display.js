@@ -18,9 +18,9 @@ function setupDisplayArea(){
 
 function speak(message){
     
-    const err = new Error().stack
-
-    console.log(err.split("\n")[2])
+    //Show where
+    // const err = new Error().stack
+    // console.log(err.split("\n")[2])
     
     console.log(message)
 }
@@ -131,8 +131,8 @@ class display{
             itemData.x += itemData.xChange * itemData.xPolarity;
             itemData.y += itemData.yChange * itemData.yPolarity;
 
-            if(itemData.y < 0){
-                itemData.y = 0;
+            if(itemData.y < 0 + itemData.height){
+                itemData.y = 0 + itemData.height;
                 itemData.yPolarity = 1;
             }
             else if(itemData.y >= this.height - itemData.height){
@@ -150,8 +150,8 @@ class display{
                 }
             }
 
-            if(itemData.x < 0){
-                itemData.x = 0;
+            if(itemData.x < 0 + itemData.width){
+                itemData.x = 0 + itemData.width;
                 itemData.xPolarity = 1;
             }
             else if(itemData.x >= this.width - itemData.width){
