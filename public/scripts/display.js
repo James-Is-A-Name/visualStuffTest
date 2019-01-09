@@ -13,8 +13,58 @@ function setupDisplayArea(){
         mainDisplay.redrawItemsSVG()
         
     }
-    ,30)
+    ,20)
 }
+
+
+var THISISBADx = 0;
+var THISISBADy = 0;
+
+function handleMotion(event) {
+
+    //x is left right
+    //y is updown
+    //z is back froward 
+    // console.log("x=",Math.floor(event.accelerationIncludingGravity.x*1000))
+    // console.log("y=",Math.floor(event.accelerationIncludingGravity.y*1000))
+    // console.log("z=",Math.floor(event.accelerationIncludingGravity.z*1000))
+    
+    if(event.accelerationIncludingGravity.x > 2){
+        THISISBADx = -1;
+    }
+    else if(event.accelerationIncludingGravity.x < -2){
+        THISISBADx = 1;
+    }
+    else{
+        THISISBADx = 0;
+    }
+    
+    if(event.accelerationIncludingGravity.z > 2){
+        THISISBADy = -1;
+    }
+    else if(event.accelerationIncludingGravity.z < -2){
+        THISISBADy = 1;
+    }
+    else{
+        THISISBADy = 0;
+    }
+}
+function handleOrientation(event) {
+
+
+    // if(event.gamma > 10){
+    //     THISISBADx = 1;
+    // }
+    // else if(event.gamma < -10){
+    //     THISISBADx = -1;
+    // }
+    // else{
+    //     THISISBADx = 0;
+    // }
+}
+
+window.addEventListener('deviceorientation', handleOrientation);
+window.addEventListener('devicemotion', handleMotion);
 
 function speak(message){
     
@@ -152,8 +202,21 @@ class display{
 
     moveItems(){
         this.items = this.items.map( itemData=> {
-            itemData.x += itemData.xChange * itemData.xPolarity;
-            itemData.y += itemData.yChange * itemData.yPolarity;
+            itemData.x += Math.floor(itemData.xChange) * itemData.xPolarity;
+            itemData.y += Math.floor(itemData.yChange) * itemData.yPolarity;
+
+            itemData.yChange += (0.1*itemData.yPolarity*THISISBADy);
+            if(itemData.yChange < 0){
+                itemData.yChange = -itemData.yChange;
+                itemData.yPolarity = -itemData.yPolarity;
+            }
+            
+            
+            itemData.xChange += (0.1*itemData.xPolarity*THISISBADx);
+            if(itemData.xChange < 0){
+                itemData.xChange = -itemData.xChange;
+                itemData.xPolarity = -itemData.xPolarity;
+            }
 
             if(itemData.y < 0){
                 itemData.y = 0;
@@ -165,8 +228,8 @@ class display{
                 itemData.yPolarity = -1;
                 
                 if(Math.random() > 0.5){
-                    itemData.xChange = Math.floor(Math.random() * 10)
-                    itemData.yChange = Math.floor(Math.random() * 10 + 1)
+                    //itemData.xChange = Math.floor(Math.random() * 10)
+                    itemData.yChange = Math.floor(Math.random() * 15 + 1)
 
                     if(Math.random() > 0.90){
                         itemData.xPolarity *= -1;
@@ -176,10 +239,16 @@ class display{
 
             if(itemData.x < 0){
                 itemData.x = 0;
+                if(THISISBADx != 0){
+                    itemData.xChange = Math.floor(itemData.xChange * (8+Math.random()) /10)
+                }
                 itemData.xPolarity = 1;
             }
             else if(itemData.x >= this.width - itemData.width){
                 itemData.x = this.width - itemData.width - 1;
+                if(THISISBADx != 0){
+                    itemData.xChange = Math.floor(itemData.xChange * (8+Math.random()) /10)
+                }
                 itemData.xPolarity = -1;
             }
 
