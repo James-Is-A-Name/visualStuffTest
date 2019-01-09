@@ -31,23 +31,26 @@ function handleMotion(event) {
     
     if(event.accelerationIncludingGravity.x > 2){
         THISISBADx = -1;
+        THISISBADy = 0;
     }
     else if(event.accelerationIncludingGravity.x < -2){
         THISISBADx = 1;
+        THISISBADy = 0;
     }
     else{
         THISISBADx = 0;
-    }
-    
-    if(event.accelerationIncludingGravity.z > 2){
-        THISISBADy = -1;
-    }
-    else if(event.accelerationIncludingGravity.z < -2){
         THISISBADy = 1;
     }
-    else{
-        THISISBADy = 0;
-    }
+    
+    // if(event.accelerationIncludingGravity.z > 2){
+    //     THISISBADy = -1;
+    // }
+    // else if(event.accelerationIncludingGravity.z < -2){
+    //     THISISBADy = 1;
+    // }
+    // else{
+    //     THISISBADy = 0;
+    // }
 }
 function handleOrientation(event) {
 
@@ -228,11 +231,14 @@ class display{
                 itemData.yPolarity = -1;
                 
                 if(Math.random() > 0.5){
-                    //itemData.xChange = Math.floor(Math.random() * 10)
-                    itemData.yChange = Math.floor(Math.random() * 15 + 1)
+                    if(THISISBADy != 0){
 
-                    if(Math.random() > 0.90){
-                        itemData.xPolarity *= -1;
+                        itemData.xChange = Math.floor(Math.random() * 10)
+                        itemData.yChange = Math.floor(Math.random() * 15 + 1)
+
+                        if(Math.random() > 0.90){
+                            itemData.xPolarity *= -1;
+                        }
                     }
                 }
             }
@@ -241,6 +247,7 @@ class display{
                 itemData.x = 0;
                 if(THISISBADx != 0){
                     itemData.xChange = Math.floor(itemData.xChange * (8+Math.random()) /10)
+                    itemData.yChange = Math.floor(itemData.yChange * (8+Math.random()) /10)
                 }
                 itemData.xPolarity = 1;
             }
@@ -248,6 +255,7 @@ class display{
                 itemData.x = this.width - itemData.width - 1;
                 if(THISISBADx != 0){
                     itemData.xChange = Math.floor(itemData.xChange * (8+Math.random()) /10)
+                    itemData.yChange = Math.floor(itemData.yChange * (8+Math.random()) /10)
                 }
                 itemData.xPolarity = -1;
             }
