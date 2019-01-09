@@ -13,7 +13,7 @@ function setupDisplayArea(){
         mainDisplay.redrawItemsSVG()
         
     }
-    ,20)
+    ,30)
 }
 
 function speak(message){
@@ -82,18 +82,42 @@ class display{
         this.items.forEach(itemData => {
 
             if(itemData.itemId >= 0){
+                let aThing = document.createElementNS(svgNs,"svg");
+
                 let aCircle = document.createElementNS(svgNs,"circle");
                 
-                aCircle.setAttributeNS(null,"id","svgItem-" + itemData.itemId);
-                aCircle.setAttributeNS(null,"cx",itemData.x);
-                aCircle.setAttributeNS(null,"cy",itemData.y);
-                aCircle.setAttributeNS(null,"r",itemData.width);
+                aThing.setAttributeNS(null,"id","svgItem-" + itemData.itemId);
 
+                aThing.setAttributeNS(null,"x",itemData.x-1);
+                aThing.setAttributeNS(null,"y",itemData.y-1);
+
+                aThing.setAttributeNS(null,"width",itemData.width+2);
+                aThing.setAttributeNS(null,"height",itemData.height+2);
+
+                aCircle.setAttributeNS(null,"cx",itemData.width/2 + 1);
+                aCircle.setAttributeNS(null,"cy",itemData.width/2 + 1);
+
+                aCircle.setAttributeNS(null,"r",itemData.width/2);
                 aCircle.setAttributeNS(null,"fill","red");
                 aCircle.setAttributeNS(null,"stroke","black");
 
+                aThing.appendChild(aCircle)
+
+                let aRect = document.createElementNS(svgNs,"rect")
+                
+                aRect.setAttributeNS(null,"x",itemData.width/2);
+                aRect.setAttributeNS(null,"y",itemData.width/2);
+
+                aRect.setAttributeNS(null,"width",itemData.width/4);
+                aRect.setAttributeNS(null,"height",itemData.width/4);
+
+                aRect.setAttributeNS(null,"fill","white");
+                aRect.setAttributeNS(null,"stroke","black");
+                
+                aThing.appendChild(aRect)
+
                 //This will just keep adding things so not the best
-                svgDisplayElement.appendChild(aCircle);
+                svgDisplayElement.appendChild(aThing);
             }
         });
     }
@@ -131,8 +155,8 @@ class display{
             itemData.x += itemData.xChange * itemData.xPolarity;
             itemData.y += itemData.yChange * itemData.yPolarity;
 
-            if(itemData.y < 0 + itemData.height){
-                itemData.y = 0 + itemData.height;
+            if(itemData.y < 0){
+                itemData.y = 0;
                 itemData.yPolarity = 1;
             }
             else if(itemData.y >= this.height - itemData.height){
@@ -150,8 +174,8 @@ class display{
                 }
             }
 
-            if(itemData.x < 0 + itemData.width){
-                itemData.x = 0 + itemData.width;
+            if(itemData.x < 0){
+                itemData.x = 0;
                 itemData.xPolarity = 1;
             }
             else if(itemData.x >= this.width - itemData.width){
@@ -185,13 +209,6 @@ class display{
     redrawItemsSVG(){
         let displayElement = document.getElementById("svgArea");
 
-        // let anSVGCircle = document.getElementById("svgItem-1");
-
-        // if(anSVGCircle){
-        //     console.log("rect is ",anSVGCircle.cx.animVal.value)
-
-        //     anSVGCircle.setAttribute("cx", anSVGCircle.cx.animVal.value + 1);
-        // }
 
         let childElemnts = displayElement.childNodes;
 
@@ -203,10 +220,23 @@ class display{
             
             let itemData = this.items[id.substring(8)];
             
+            item.setAttribute("x" ,itemData.x);
+            item.setAttribute("y", itemData.y);
 
-            item.setAttribute("cx" ,itemData.x);
-            item.setAttribute("cy", itemData.y);
-            item.setAttribute("r", itemData.width);
+            let rect = item.childNodes[1];
+
+            if(itemData.xPolarity < 0){
+                rect.setAttribute("x",itemData.width/4);
+            }
+            else{
+                rect.setAttribute("x",itemData.width/2);
+            }
+            if(itemData.yPolarity < 0){
+                rect.setAttribute("y",itemData.width/4);
+            }
+            else{
+                rect.setAttribute("y",itemData.width/2);
+            }
         })
     }
 }
