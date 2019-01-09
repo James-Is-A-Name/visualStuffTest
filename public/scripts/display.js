@@ -50,23 +50,38 @@ class display{
 
         this.xGrav = 0;
         this.yGrav = 1;
-        window.addEventListener('devicemotion', this.handleMotion);
+
+
+        window.addEventListener('devicemotion', (event) => {this.handleMotion(event,this)});
 
     }
     
 
-    handleMotion(event) {
+    handleMotion(event,theObject) {
         if(event.accelerationIncludingGravity.x > 2){
-            this.xGrav = -1;
-            this.yGrav = 0;
+
+            if(theObject.xGrav != -1){
+                console.log("all fall left now")
+            }
+
+            theObject.xGrav = -1;
+            theObject.yGrav = 0;
         }
         else if(event.accelerationIncludingGravity.x < -2){
-            this.xGrav = 1;
-            this.yGrav = 0;
+            
+            if(theObject.xGrav != 1){
+                console.log("all fall rigth now")
+            }
+
+            theObject.xGrav = 1;
+            theObject.yGrav = 0;
         }
         else{
-            this.xGrav = 0;
-            this.yGrav = 1;
+            if(theObject.xGrav != 0){
+                console.log("all fall down now")
+            }
+            theObject.xGrav = 0;
+            theObject.yGrav = 1;
         }
     }
 
@@ -174,6 +189,9 @@ class display{
     }
 
     moveItems(){
+        if(this.xGrav != 0){
+            console.log("xgrav seen as ",this.xGrav)
+        }
         this.items = this.items.map( itemData=> {
             itemData.x += Math.floor(itemData.xChange) * itemData.xPolarity;
             itemData.y += Math.floor(itemData.yChange) * itemData.yPolarity;
@@ -272,18 +290,20 @@ class display{
 
             let rect = item.childNodes[1];
 
-            if(itemData.xPolarity < 0){
-                rect.setAttribute("x",itemData.width/4);
+            let xDirect = Math.abs(itemData.xChange);
+            let yDirect = Math.abs(itemData.yChange);
+
+            let range = 5;
+            if(xDirect > range){
+                xDirect = range
             }
-            else{
-                rect.setAttribute("x",itemData.width/2);
+            if(yDirect > range){
+                yDirect = range
             }
-            if(itemData.yPolarity < 0){
-                rect.setAttribute("y",itemData.width/4);
-            }
-            else{
-                rect.setAttribute("y",itemData.width/2);
-            }
+            xDirect *= itemData.xPolarity
+            yDirect *= itemData.yPolarity
+            rect.setAttribute("x",itemData.width*3/8 + itemData.width/(range * 4) * xDirect);
+            rect.setAttribute("y",itemData.height*3/8 + itemData.height/(range * 4) * yDirect);
         })
     }
 }
