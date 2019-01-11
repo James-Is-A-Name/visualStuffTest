@@ -9,16 +9,18 @@ function setupDisplayArea(){
 
     let loop = setInterval(() => {
         mainDisplay.moveItems()
-        mainDisplay.redrawItemsHTML()
+        // mainDisplay.redrawItemsHTML()
+        mainDisplay.redrawItemsSVG()
+        
     }
-    ,20)
+    ,30)
 }
 
 function speak(message){
     
-    const err = new Error().stack
-
-    console.log(err.split("\n")[2])
+    //Show where
+    // const err = new Error().stack
+    // console.log(err.split("\n")[2])
     
     console.log(message)
 }
@@ -31,17 +33,19 @@ class display{
         this.drawArea();
 
         this.items = [];
-        this.items.push(new visualItem(10,10,30,40,this.items.length));
-        this.items.push(new visualItem(101,110,60,40,this.items.length));
-        this.items.push(new visualItem(103,210,30,40,this.items.length));
-        this.items.push(new visualItem(120,310,30,40,this.items.length));
-        this.items.push(new visualItem(410,410,30,40,this.items.length));
+        this.items.push(new visualItem(10,10,30,undefined,this.items.length));
+        this.items.push(new visualItem(101,110,60,undefined,this.items.length));
+        this.items.push(new visualItem(103,210,30,undefined,this.items.length));
+        this.items.push(new visualItem(120,310,30,undefined,this.items.length));
+        this.items.push(new visualItem(410,410,30,undefined,this.items.length));
 
         [1,2,3,4,5,6,7,8,9,10,11,12,13,1,1,1,1,1,1,1,1,1,1,1,1,1,1].forEach( (val,i)=> {
-            this.items.push(new visualItem(10*val,10+i*5,30+val,50-val,this.items.length));
+            this.items.push(new visualItem(10*val,10+i*5,30+val,undefined,this.items.length));
         })
 
-        this.setupItemsHTML()
+        // this.setupItemsHTML()
+        this.setupItemsSVG()
+
     }
 
     drawArea(){
@@ -55,6 +59,67 @@ class display{
 
         displayElement.style.width = this.width + "px";
         displayElement.style.height = this.height + "px";
+
+
+
+        //Setup SVG
+        let svgNs = "http://www.w3.org/2000/svg";
+        
+        let svgArea = document.createElementNS(svgNs,"svg");
+        svgArea.setAttributeNS(null,"id","svgArea");
+        svgArea.setAttributeNS(null,"width",this.width);
+        svgArea.setAttributeNS(null,"height",this.height);
+
+        displayElement.appendChild(svgArea);
+    }
+
+    setupItemsSVG(){
+        let svgDisplayElement = document.getElementById("svgArea");
+        let svgNs = "http://www.w3.org/2000/svg";
+
+        speak(`items length is ${this.items.length}`)
+
+        this.items.forEach(itemData => {
+
+            if(itemData.itemId >= 0){
+                let aThing = document.createElementNS(svgNs,"svg");
+
+                let aCircle = document.createElementNS(svgNs,"circle");
+                
+                aThing.setAttributeNS(null,"id","svgItem-" + itemData.itemId);
+
+                aThing.setAttributeNS(null,"x",itemData.x-1);
+                aThing.setAttributeNS(null,"y",itemData.y-1);
+
+                aThing.setAttributeNS(null,"width",itemData.width+2);
+                aThing.setAttributeNS(null,"height",itemData.height+2);
+
+                aCircle.setAttributeNS(null,"cx",itemData.width/2 + 1);
+                aCircle.setAttributeNS(null,"cy",itemData.width/2 + 1);
+
+                aCircle.setAttributeNS(null,"r",itemData.width/2);
+                aCircle.setAttributeNS(null,"fill","red");
+                aCircle.setAttributeNS(null,"stroke","black");
+
+                aThing.appendChild(aCircle)
+
+                let aRect = document.createElementNS(svgNs,"rect")
+                
+                aRect.setAttributeNS(null,"x",itemData.width/2);
+                aRect.setAttributeNS(null,"y",itemData.width/2);
+
+                aRect.setAttributeNS(null,"width",itemData.width/4);
+                aRect.setAttributeNS(null,"height",itemData.width/4);
+
+                aRect.setAttributeNS(null,"fill","white");
+                aRect.setAttributeNS(null,"stroke","black");
+                
+                aThing.appendChild(aRect)
+
+                //This will just keep adding things so not the best
+                svgDisplayElement.appendChild(aThing);
+            }
+        });
     }
 
     setupItemsHTML(){
@@ -138,6 +203,40 @@ class display{
             item.style.top = itemData.y + "px";
             item.style.width = itemData.width + "px";
             item.style.height = itemData.height + "px";
+        })
+    }
+    
+    redrawItemsSVG(){
+        let displayElement = document.getElementById("svgArea");
+
+
+        let childElemnts = displayElement.childNodes;
+
+
+        childElemnts.forEach( itemInfo =>{
+            let id = itemInfo.id
+            
+            let item = document.getElementById(id);
+            
+            let itemData = this.items[id.substring(8)];
+            
+            item.setAttribute("x" ,itemData.x);
+            item.setAttribute("y", itemData.y);
+
+            let rect = item.childNodes[1];
+
+            if(itemData.xPolarity < 0){
+                rect.setAttribute("x",itemData.width/4);
+            }
+            else{
+                rect.setAttribute("x",itemData.width/2);
+            }
+            if(itemData.yPolarity < 0){
+                rect.setAttribute("y",itemData.width/4);
+            }
+            else{
+                rect.setAttribute("y",itemData.width/2);
+            }
         })
     }
 }
