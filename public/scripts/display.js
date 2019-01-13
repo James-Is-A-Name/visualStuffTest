@@ -10,7 +10,7 @@ function setupDisplayArea(){
     let loop = setInterval(() => {
         mainDisplay.moveItems()
         // mainDisplay.redrawItemsHTML()
-        mainDisplay.redrawItemsSVG()
+        //mainDisplay.redrawItemsSVG()
         
     }
     ,30)
@@ -44,7 +44,7 @@ class display{
         })
 
         // this.setupItemsHTML()
-        this.setupItemsSVG()
+        //this.setupItemsSVG()
 
     }
 
@@ -70,7 +70,22 @@ class display{
         svgArea.setAttributeNS(null,"width",this.width);
         svgArea.setAttributeNS(null,"height",this.height);
 
-        displayElement.appendChild(svgArea);
+        //was covering the canvas
+        //displayElement.appendChild(svgArea);
+
+        //Setup Canvas
+        let canvasArea = document.createElement("canvas");
+        canvasArea.setAttribute("id","canvasArea");
+        canvasArea.setAttribute("width","500");
+        canvasArea.setAttribute("height","500");
+        canvasArea.style.position = "absolute";
+
+        displayElement.appendChild(canvasArea)
+
+        let testCanvasDraw = canvasArea.getContext("2d");
+        testCanvasDraw.moveTo(0,0);
+        testCanvasDraw.lineTo(200,200);
+        testCanvasDraw.stroke();
     }
 
     setupItemsSVG(){
@@ -238,6 +253,9 @@ class display{
                 rect.setAttribute("y",itemData.width/2);
             }
         })
+    }
+    redrawItemsCanvas(){
+        
     }
 }
 
