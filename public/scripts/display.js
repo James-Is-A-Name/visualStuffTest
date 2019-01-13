@@ -11,7 +11,7 @@ function setupDisplayArea(){
         mainDisplay.moveItems()
         // mainDisplay.redrawItemsHTML()
         //mainDisplay.redrawItemsSVG()
-        
+        mainDisplay.redrawItemsCanvas()
     }
     ,30)
 }
@@ -76,16 +76,11 @@ class display{
         //Setup Canvas
         let canvasArea = document.createElement("canvas");
         canvasArea.setAttribute("id","canvasArea");
-        canvasArea.setAttribute("width","500");
-        canvasArea.setAttribute("height","500");
+        canvasArea.setAttribute("width",this.width);
+        canvasArea.setAttribute("height",this.height);
         canvasArea.style.position = "absolute";
 
         displayElement.appendChild(canvasArea)
-
-        let testCanvasDraw = canvasArea.getContext("2d");
-        testCanvasDraw.moveTo(0,0);
-        testCanvasDraw.lineTo(200,200);
-        testCanvasDraw.stroke();
     }
 
     setupItemsSVG(){
@@ -255,7 +250,17 @@ class display{
         })
     }
     redrawItemsCanvas(){
-        
+        let displayElement = document.getElementById("canvasArea");
+
+        let canvasArea = displayElement.getContext("2d");
+
+        canvasArea.clearRect(0,0,this.width,this.height)
+
+        this.items.forEach( (item) => {
+            canvasArea.beginPath();
+            canvasArea.arc(item.x+item.width/2,item.y+item.width/2,item.width/2,0,2*Math.PI);
+            canvasArea.stroke();
+        } )
     }
 }
 
