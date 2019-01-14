@@ -13,8 +13,10 @@ function setupDisplayArea(){
         mainDisplay.redrawItemsSVG()
         
     }
-    ,30)
+    ,20)
 }
+
+
 
 function speak(message){
     
@@ -46,7 +48,43 @@ class display{
         // this.setupItemsHTML()
         this.setupItemsSVG()
 
+        this.xGrav = 0;
+        this.yGrav = 1;
+
+
+        window.addEventListener('devicemotion', (event) => {this.handleMotion(event,this)});
+
     }
+    
+
+    handleMotion(event,theObject) {
+        if(event.accelerationIncludingGravity.x > 2){
+
+            if(theObject.xGrav != -1){
+                console.log("all fall left now")
+            }
+
+            theObject.xGrav = -1;
+            theObject.yGrav = 0;
+        }
+        else if(event.accelerationIncludingGravity.x < -2){
+            
+            if(theObject.xGrav != 1){
+                console.log("all fall rigth now")
+            }
+
+            theObject.xGrav = 1;
+            theObject.yGrav = 0;
+        }
+        else{
+            if(theObject.xGrav != 0){
+                console.log("all fall down now")
+            }
+            theObject.xGrav = 0;
+            theObject.yGrav = 1;
+        }
+    }
+
 
     drawArea(){
         let displayElement = document.getElementById("displayElement");
@@ -151,9 +189,25 @@ class display{
     }
 
     moveItems(){
+        if(this.xGrav != 0){
+            console.log("xgrav seen as ",this.xGrav)
+        }
         this.items = this.items.map( itemData=> {
-            itemData.x += itemData.xChange * itemData.xPolarity;
-            itemData.y += itemData.yChange * itemData.yPolarity;
+            itemData.x += Math.floor(itemData.xChange) * itemData.xPolarity;
+            itemData.y += Math.floor(itemData.yChange) * itemData.yPolarity;
+
+            itemData.yChange += (0.1*itemData.yPolarity*this.yGrav);
+            if(itemData.yChange < 0){
+                itemData.yChange = -itemData.yChange;
+                itemData.yPolarity = -itemData.yPolarity;
+            }
+            
+            
+            itemData.xChange += (0.1*itemData.xPolarity*this.xGrav);
+            if(itemData.xChange < 0){
+                itemData.xChange = -itemData.xChange;
+                itemData.xPolarity = -itemData.xPolarity;
+            }
 
             if(itemData.y < 0){
                 itemData.y = 0;
@@ -165,21 +219,32 @@ class display{
                 itemData.yPolarity = -1;
                 
                 if(Math.random() > 0.5){
-                    itemData.xChange = Math.floor(Math.random() * 10)
-                    itemData.yChange = Math.floor(Math.random() * 10 + 1)
+                    if(this.yGrav != 0){
 
-                    if(Math.random() > 0.90){
-                        itemData.xPolarity *= -1;
+                        itemData.xChange = Math.floor(Math.random() * 10)
+                        itemData.yChange = Math.floor(Math.random() * 15 + 1)
+
+                        if(Math.random() > 0.90){
+                            itemData.xPolarity *= -1;
+                        }
                     }
                 }
             }
 
             if(itemData.x < 0){
                 itemData.x = 0;
+                if(this.xGrav != 0){
+                    itemData.xChange = Math.floor(itemData.xChange * (8+Math.random()) /10)
+                    itemData.yChange = Math.floor(itemData.yChange * (8+Math.random()) /10)
+                }
                 itemData.xPolarity = 1;
             }
             else if(itemData.x >= this.width - itemData.width){
                 itemData.x = this.width - itemData.width - 1;
+                if(this.xGrav != 0){
+                    itemData.xChange = Math.floor(itemData.xChange * (8+Math.random()) /10)
+                    itemData.yChange = Math.floor(itemData.yChange * (8+Math.random()) /10)
+                }
                 itemData.xPolarity = -1;
             }
 
@@ -225,18 +290,20 @@ class display{
 
             let rect = item.childNodes[1];
 
-            if(itemData.xPolarity < 0){
-                rect.setAttribute("x",itemData.width/4);
+            let xDirect = Math.abs(itemData.xChange);
+            let yDirect = Math.abs(itemData.yChange);
+
+            let range = 5;
+            if(xDirect > range){
+                xDirect = range
             }
-            else{
-                rect.setAttribute("x",itemData.width/2);
+            if(yDirect > range){
+                yDirect = range
             }
-            if(itemData.yPolarity < 0){
-                rect.setAttribute("y",itemData.width/4);
-            }
-            else{
-                rect.setAttribute("y",itemData.width/2);
-            }
+            xDirect *= itemData.xPolarity
+            yDirect *= itemData.yPolarity
+            rect.setAttribute("x",itemData.width*3/8 + itemData.width/(range * 4) * xDirect);
+            rect.setAttribute("y",itemData.height*3/8 + itemData.height/(range * 4) * yDirect);
         })
     }
 }
