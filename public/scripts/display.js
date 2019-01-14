@@ -12,9 +12,11 @@ function setupDisplayArea(){
         // mainDisplay.redrawItemsHTML()
         //mainDisplay.redrawItemsSVG()
         mainDisplay.redrawItemsCanvas()
+        mainDisplay.redrawUserEntityCanvas()
     }
     ,20)
 }
+
 
 
 
@@ -31,6 +33,18 @@ class display{
     constructor(){
         this.width = (document.documentElement.clientWidth - 30) || 100;
         this.height = (document.documentElement.clientHeight - 30) || 100;
+
+        this.userEntity = {
+            width: 30,
+            height: 50,
+            x: 0,
+            y: this.height,
+            xChange: 0,
+            yChange: 0,
+            xPolarity: 1,
+            yPolarity: 1,
+            xAccel: 0
+        }
 
         this.drawArea();
 
@@ -54,8 +68,49 @@ class display{
 
         window.addEventListener('devicemotion', (event) => {this.handleMotion(event,this)});
 
+        // window.addEventListener('onkeydown', (event) => {this.handleUserKeyDown(event,this)});
+        
+        // document.onkeydown = (e)=>{alert("something")};
+        document.onkeydown = (event) => {this.handleUserKeyDown(event,this)}
+        document.onkeyup = (event) => {this.handleUserKeyUp(event,this)}
+    }
+    handleUserKeyUp(event,thisObject){
+        
+        switch (event.keyCode){
+            case 37 : {
+                if (thisObject.userEntity.xAccel == -1){
+                    thisObject.userEntity.xAccel = 0
+                }
+                break;
+            }
+            case 39 : {
+                if (thisObject.userEntity.xAccel == 1){
+                    thisObject.userEntity.xAccel = 0
+                }
+            }
+        }
     }
     
+    handleUserKeyDown(event,thisObject){
+
+        switch (event.keyCode){
+            case 38 : {
+                if(Math.abs(thisObject.userEntity.y) == this.height - 50){
+                    thisObject.userEntity.yChange = 7;
+                    thisObject.userEntity.yPolarity = -1;
+                }
+                break;
+            }
+            case 37 : {
+                thisObject.userEntity.xAccel = -1;
+                break;
+            }
+            case 39 : {
+                thisObject.userEntity.xAccel = 1;
+                break;
+            }
+        }
+    }
 
     handleMotion(event,theObject) {
         if(event.accelerationIncludingGravity.x > 2){
@@ -198,10 +253,82 @@ class display{
         });
     }
 
+    collidesWithEntity(item){
+
+        let xDiff = item.x - this.userEntity.x
+        let yDiff = item.y - this.userEntity.y
+
+
+        //Currently simplifies the circle to a a square hitbox
+        if(xDiff > -item.width && xDiff < this.userEntity.width){
+            if(yDiff > -item.height && yDiff < this.userEntity.height){
+                return true;
+            }
+        }
+
+        return false
+    }
+
+
     moveItems(){
         if(this.xGrav != 0){
             console.log("xgrav seen as ",this.xGrav)
         }
+
+        
+        /* ENTITY THINGS HERE */
+        
+        let userEntity = this.userEntity
+        userEntity.x += Math.floor(userEntity.xChange) * userEntity.xPolarity;
+        userEntity.y += Math.floor(userEntity.yChange) * userEntity.yPolarity;
+        
+        if(Math.abs(userEntity.y) == this.height - 50){
+            if(userEntity.xAccel != 0){
+                userEntity.xChange += userEntity.xAccel * userEntity.xPolarity;
+
+                if(userEntity.xChange > 10){
+                    userEntity.xChange = 10
+                }
+            }
+            else if(userEntity.xChange > 0.9){
+                userEntity.xChange -= 1
+            }
+            else{
+                userEntity.xChange = 0
+            }
+        }
+        
+
+        userEntity.yChange += (0.1*userEntity.yPolarity*this.yGrav);
+        if(userEntity.yChange < 0){
+            userEntity.yChange = -userEntity.yChange;
+            userEntity.yPolarity = -userEntity.yPolarity;
+        }
+
+        if(userEntity.xChange < 0){
+            userEntity.xChange = -userEntity.xChange;
+            userEntity.xPolarity = -userEntity.xPolarity;
+        }
+
+        if(userEntity.y < 0){
+            userEntity.y = 0
+        }
+        if(userEntity.y > this.height-this.userEntity.height){
+            userEntity.y = this.height-this.userEntity.height
+            userEntity.yChange = 0
+        }
+        if(userEntity.x < 0){
+            userEntity.x = 0
+            userEntity.xChange = 0
+        }
+        if(userEntity.x > this.width-userEntity.width){
+            userEntity.x = this.width-this.userEntity.width
+            userEntity.xChange = 0
+        }
+        /* ENTITY THINGS HERE */
+
+
+
         this.items = this.items.map( itemData=> {
             itemData.x += Math.floor(itemData.xChange) * itemData.xPolarity;
             itemData.y += Math.floor(itemData.yChange) * itemData.yPolarity;
@@ -326,8 +453,25 @@ class display{
         this.items.forEach( (item) => {
             canvasArea.beginPath();
             canvasArea.arc(item.x+item.width/2,item.y+item.width/2,item.width/2,0,2*Math.PI);
+
+            if(this.collidesWithEntity(item)){
+                canvasArea.fillStyle = "red";
+                canvasArea.fill();
+            }
             canvasArea.stroke();
         } )
+    }
+
+    redrawUserEntityCanvas(){
+        let displayElement = document.getElementById("canvasArea");
+
+        let canvasArea = displayElement.getContext("2d");
+
+        canvasArea.beginPath();
+        canvasArea.rect(this.userEntity.x,this.userEntity.y,this.userEntity.width,this.userEntity.height);
+        canvasArea.fillStyle = "green";
+        canvasArea.fill();
+        canvasArea.stroke();
     }
 }
 
