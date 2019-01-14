@@ -10,8 +10,8 @@ function setupDisplayArea(){
     let loop = setInterval(() => {
         mainDisplay.moveItems()
         // mainDisplay.redrawItemsHTML()
-        mainDisplay.redrawItemsSVG()
-        
+        //mainDisplay.redrawItemsSVG()
+        mainDisplay.redrawItemsCanvas()
     }
     ,20)
 }
@@ -46,7 +46,7 @@ class display{
         })
 
         // this.setupItemsHTML()
-        this.setupItemsSVG()
+        //this.setupItemsSVG()
 
         this.xGrav = 0;
         this.yGrav = 1;
@@ -108,7 +108,17 @@ class display{
         svgArea.setAttributeNS(null,"width",this.width);
         svgArea.setAttributeNS(null,"height",this.height);
 
-        displayElement.appendChild(svgArea);
+        //was covering the canvas
+        //displayElement.appendChild(svgArea);
+
+        //Setup Canvas
+        let canvasArea = document.createElement("canvas");
+        canvasArea.setAttribute("id","canvasArea");
+        canvasArea.setAttribute("width",this.width);
+        canvasArea.setAttribute("height",this.height);
+        canvasArea.style.position = "absolute";
+
+        displayElement.appendChild(canvasArea)
     }
 
     setupItemsSVG(){
@@ -305,6 +315,19 @@ class display{
             rect.setAttribute("x",itemData.width*3/8 + itemData.width/(range * 4) * xDirect);
             rect.setAttribute("y",itemData.height*3/8 + itemData.height/(range * 4) * yDirect);
         })
+    }
+    redrawItemsCanvas(){
+        let displayElement = document.getElementById("canvasArea");
+
+        let canvasArea = displayElement.getContext("2d");
+
+        canvasArea.clearRect(0,0,this.width,this.height)
+
+        this.items.forEach( (item) => {
+            canvasArea.beginPath();
+            canvasArea.arc(item.x+item.width/2,item.y+item.width/2,item.width/2,0,2*Math.PI);
+            canvasArea.stroke();
+        } )
     }
 }
 
