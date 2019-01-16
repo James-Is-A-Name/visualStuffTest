@@ -49,15 +49,11 @@ class display{
         this.drawArea();
 
         this.items = [];
-        this.items.push(new visualItem(10,10,30,undefined,this.items.length));
-        this.items.push(new visualItem(101,110,60,undefined,this.items.length));
-        this.items.push(new visualItem(103,210,30,undefined,this.items.length));
-        this.items.push(new visualItem(120,310,30,undefined,this.items.length));
-        this.items.push(new visualItem(410,410,30,undefined,this.items.length));
+        this.items.push(new visualItem(10,10,300,undefined,this.items.length));
 
-        [1,2,3,4,5,6,7,8,9,10,11,12,13,1,1,1,1,1,1,1,1,1,1,1,1,1,1].forEach( (val,i)=> {
-            this.items.push(new visualItem(10*val,10+i*5,30+val,undefined,this.items.length));
-        })
+        // [1,2,3,4,5,6,7,8,9,10,11,12,13,1,1,1,1,1,1,1,1,1,1,1,1,1,1].forEach( (val,i)=> {
+        //     this.items.push(new visualItem(10*val,10+i*5,30+val,undefined,this.items.length));
+        // })
 
         // this.setupItemsHTML()
         //this.setupItemsSVG()
@@ -297,17 +293,17 @@ class display{
 
         //still simplifying to a square
             //lazy redirect happening
-        if(xDiff < 0){
+        if(xDiff < -item.width/2){
             xDirection = -1;
         }
-        else if(xDiff > this.userEntity.width - item.width){
+        else if(xDiff > this.userEntity.width - item.width/2){
             xDirection = 1;
         }
         
-        if(yDiff > this.userEntity.height){
+        if(yDiff > this.userEntity.height - item.height/2){
             yDirection = 1;
         }
-        else if(yDiff <  item.height){
+        else if(yDiff <  - item.height/2){
             yDirection = -1;
         }
 
@@ -373,8 +369,9 @@ class display{
         /* ENTITY THINGS HERE */
 
 
+        let newItems = []
 
-        this.items = this.items.map( itemData=> {
+        this.items = this.items.map( (itemData,index)=> {
             itemData.x += Math.floor(itemData.xChange) * itemData.xPolarity;
             itemData.y += Math.floor(itemData.yChange) * itemData.yPolarity;
 
@@ -435,21 +432,69 @@ class display{
             if(this.collidesWithEntity(itemData)){
                 let reflect = this.getreflectDirection(itemData);
 
-                if(reflect.xDirection != 0){
-                    itemData.xPolarity = reflect.xDirection;
-                    if(itemData.xChange < userEntity.xChange){
-                        itemData.xChange += userEntity.xChange;
+                /* POP */
+                if((itemData.xPolarity * reflect.xDirection) < 0 && (itemData.yPolarity * reflect.yDirection) < 0 && itemData.width > 50){
+
+                    let newWidth = Math.floor(itemData.width*3/4)
+                    let newX = itemData.x + (itemData.width/8 * (-reflect.xDirection) )
+                    let newY = itemData.y + (itemData.height/8 * (-reflect.yDirection) )
+
+                    itemData.width = newWidth
+                    itemData.height = newWidth
+
+                    itemData.x =  newX
+                    itemData.y =  newY
+                    
+                    
+                    itemData.yPolarity *= -1
+                    // if(itemData.xChange > itemData.yChange){
+                    //     itemData.yPolarity *= -1
+                    //     // itemData.yChange = itemData.xChange
+                    // }
+                    // else{
+                    //     itemData.xPolarity *= -1
+                    //     // itemData.xChange = itemData.yChange
+                    // }
+
+
+                    let newItem1 = new visualItem(newX,newY,newWidth,undefined,undefined)
+                    newItem1.xChange = itemData.xChange;
+                    newItem1.yChange = itemData.yChange;
+                    newItem1.xPolarity = -itemData.xPolarity;
+                    newItem1.yPolarity = -itemData.yPolarity;
+                    newItems.push(newItem1);
+                    
+                    // let newItem2 = new visualItem(newX,newY,newWidth,undefined,undefined)
+                    // newItem2.xChange = itemData.xChange;
+                    // newItem2.yChange = itemData.yChange;
+                    // newItem2.xPolarity = -itemData.xPolarity;
+                    // newItem2.yPolarity = itemData.yPolarity;
+                    // newItems.push(newItem2);
+                }
+                else{
+                    if(reflect.xDirection != 0){
+                        itemData.xPolarity = reflect.xDirection;
+                        if(itemData.xChange < userEntity.xChange){
+                            itemData.xChange += userEntity.xChange;
+                        }
+                    }
+                    if(reflect.yDirection != 0){
+                        itemData.yPolarity = reflect.yDirection;
+                        if(itemData.yChange < userEntity.yChange){
+                            itemData.yChange += userEntity.yChange;
+                        }
                     }
                 }
-                if(reflect.yDirection != 0){
-                    itemData.yPolarity = reflect.yDirection;
-                    if(itemData.yChange < userEntity.yChange){
-                        itemData.yChange += userEntity.yChange;
-                    }
-                }
+
+
+
+
             }
 
             return itemData;
+        })
+        newItems.forEach( (newItem) => {
+            this.items.push(newItem)
         })
     }
 
