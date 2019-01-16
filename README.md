@@ -9,3 +9,5 @@ methods used
 # Other branch happenings
 * userInteractions
     - rectangle moved by arrow keys has items bounce off it
+* itemSplit
+    - starts with an item and an item hits a corner and was going directly at it it will split in two
