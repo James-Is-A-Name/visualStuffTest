@@ -66,6 +66,9 @@ class display{
         this.yGrav = 1;
 
 
+        this.upKeyPressed = false;
+        this.leftKeyPressed = false;
+        this.rightKeyPressed = false;
         window.addEventListener('devicemotion', (event) => {this.handleMotion(event,this)});
 
         // window.addEventListener('onkeydown', (event) => {this.handleUserKeyDown(event,this)});
@@ -79,14 +82,27 @@ class display{
         switch (event.keyCode){
             case 37 : {
                 if (thisObject.userEntity.xAccel == -1){
-                    thisObject.userEntity.xAccel = 0
+                    thisObject.leftKeyPressed = false;
+                    if(thisObject.rightKeyPressed){
+                        thisObject.userEntity.xAccel = 1;
+                    }
+                    else{
+                        thisObject.userEntity.xAccel = 0;
+                    }
                 }
                 break;
             }
             case 39 : {
                 if (thisObject.userEntity.xAccel == 1){
-                    thisObject.userEntity.xAccel = 0
+                    thisObject.rightKeyPressed = false;
+                    if(thisObject.leftKeyPressed){
+                        thisObject.userEntity.xAccel = -1
+                    }
+                    else{
+                        thisObject.userEntity.xAccel = 0
+                    }
                 }
+                break;
             }
         }
     }
@@ -95,7 +111,7 @@ class display{
 
         switch (event.keyCode){
             case 38 : {
-                if(Math.abs(thisObject.userEntity.y) == this.height - 50){
+                if(Math.abs(thisObject.userEntity.y) == thisObject.height - 50){
                     thisObject.userEntity.yChange = 7;
                     thisObject.userEntity.yPolarity = -1;
                 }
@@ -103,10 +119,12 @@ class display{
             }
             case 37 : {
                 thisObject.userEntity.xAccel = -1;
+                thisObject.leftKeyPressed = true;
                 break;
             }
             case 39 : {
                 thisObject.userEntity.xAccel = 1;
+                thisObject.rightKeyPressed = true;
                 break;
             }
         }
@@ -457,6 +475,7 @@ class display{
             if(this.collidesWithEntity(item)){
                 canvasArea.fillStyle = "red";
                 canvasArea.fill();
+                
             }
             canvasArea.stroke();
         } )
