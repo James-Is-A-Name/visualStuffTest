@@ -35,8 +35,8 @@ class display{
         this.height = (document.documentElement.clientHeight - 30) || 100;
 
         this.userEntity = {
-            width: 30,
-            height: 50,
+            width: 200,
+            height: 400,
             x: 0,
             y: this.height,
             xChange: 0,
@@ -111,7 +111,7 @@ class display{
 
         switch (event.keyCode){
             case 38 : {
-                if(Math.abs(thisObject.userEntity.y) == thisObject.height - 50){
+                if(Math.abs(thisObject.userEntity.y) == thisObject.height - thisObject.userEntity.height){
                     thisObject.userEntity.yChange = 7;
                     thisObject.userEntity.yPolarity = -1;
                 }
@@ -286,6 +286,33 @@ class display{
 
         return false
     }
+    getreflectDirection(item){
+
+        let xDiff = item.x - this.userEntity.x
+        let yDiff = item.y - this.userEntity.y
+
+        let xDirection = 0;
+        let yDirection = 0;
+
+
+        //still simplifying to a square
+            //lazy redirect happening
+        if(xDiff < 0){
+            xDirection = -1;
+        }
+        else if(xDiff > this.userEntity.width - item.width){
+            xDirection = 1;
+        }
+        
+        if(yDiff > this.userEntity.height){
+            yDirection = 1;
+        }
+        else if(yDiff <  item.height){
+            yDirection = -1;
+        }
+
+        return {xDirection,yDirection}
+    }
 
 
     moveItems(){
@@ -300,7 +327,7 @@ class display{
         userEntity.x += Math.floor(userEntity.xChange) * userEntity.xPolarity;
         userEntity.y += Math.floor(userEntity.yChange) * userEntity.yPolarity;
         
-        if(Math.abs(userEntity.y) == this.height - 50){
+        if(Math.abs(userEntity.y) == this.height - userEntity.height){
             if(userEntity.xAccel != 0){
                 userEntity.xChange += userEntity.xAccel * userEntity.xPolarity;
 
@@ -403,6 +430,25 @@ class display{
                 itemData.xPolarity = -1;
             }
 
+            /* Entity hit things here */
+            
+            if(this.collidesWithEntity(itemData)){
+                let reflect = this.getreflectDirection(itemData);
+
+                if(reflect.xDirection != 0){
+                    itemData.xPolarity = reflect.xDirection;
+                    if(itemData.xChange < userEntity.xChange){
+                        itemData.xChange += userEntity.xChange;
+                    }
+                }
+                if(reflect.yDirection != 0){
+                    itemData.yPolarity = reflect.yDirection;
+                    if(itemData.yChange < userEntity.yChange){
+                        itemData.yChange += userEntity.yChange;
+                    }
+                }
+            }
+
             return itemData;
         })
     }
@@ -475,7 +521,6 @@ class display{
             if(this.collidesWithEntity(item)){
                 canvasArea.fillStyle = "red";
                 canvasArea.fill();
-                
             }
             canvasArea.stroke();
         } )
