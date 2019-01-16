@@ -4,3 +4,8 @@ methods used
 * HTML and CSS
 * SVG
 * Canvas
+
+
+# Other branch happenings
+* userInteractions
+    - rectangle moved by arrow keys has items bounce off it
