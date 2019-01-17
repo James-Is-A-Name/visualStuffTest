@@ -433,7 +433,7 @@ class display{
                 let reflect = this.getreflectDirection(itemData);
 
                 /* POP */
-                if((itemData.xPolarity * reflect.xDirection) < 0 && (itemData.yPolarity * reflect.yDirection) < 0 && itemData.width > 50){
+                if((itemData.xPolarity * reflect.xDirection) < 0 && (itemData.yPolarity * reflect.yDirection) < 0 && itemData.width > 30){
 
                     let newWidth = Math.floor(itemData.width*3/4)
                     let newX = itemData.x + (itemData.width/8 * (-reflect.xDirection) )
@@ -565,6 +565,22 @@ class display{
 
             if(this.collidesWithEntity(item)){
                 canvasArea.fillStyle = "red";
+                canvasArea.fill();
+            }
+            else{
+                
+                let red = 100;
+                let green = item.width;
+                let blue = 255 - item.width/2;
+
+                if(green > 255){
+                    green = 255;
+                }
+                if(blue < 100){
+                    blue = 100;
+                }
+                red = 255 - green;
+                canvasArea.fillStyle = `rgb(${red},${green},${blue})`;
                 canvasArea.fill();
             }
             canvasArea.stroke();
